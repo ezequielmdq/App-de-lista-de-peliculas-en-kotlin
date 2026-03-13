@@ -1,6 +1,6 @@
 package com.example.peliculaspopulares.ui.screens
 
-import android.R.attr.text
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -30,7 +28,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,29 +35,29 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.peliculaspopulares.BuildConfig
 import com.example.peliculaspopulares.R
-import com.example.peliculaspopulares.data.PeliculasDAOID
-import com.example.peliculaspopulares.model.MoviesUiStateIdDao
+import com.example.peliculaspopulares.data.listasdaoid.PeliculasPopularDAOID
+import com.example.peliculaspopulares.model.MoviesPopularUiStateIdDao
 import com.example.peliculaspopulares.ui.theme.PeliculasPopularesTheme
 
 
 @Composable
 fun DetailsScreen(
-    moviesUiStateId: MoviesUiStateIdDao,
+    moviesUiStateId: MoviesPopularUiStateIdDao,
     retryAction: () -> Unit,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     modifier: Modifier
 ) {
 
     when (moviesUiStateId) {
-        is MoviesUiStateIdDao.Loading -> LoadingScreenId()
-        is MoviesUiStateIdDao.Success -> PhotosPagerScreenId(photos = PeliculasDAOID(
+        is MoviesPopularUiStateIdDao.Loading -> LoadingScreenId()
+        is MoviesPopularUiStateIdDao.Success -> PhotosPagerScreenId(photos = PeliculasPopularDAOID(
             id = moviesUiStateId.id,
             titulo = moviesUiStateId.titulo,
             poster = moviesUiStateId.poster,
             descipcion = moviesUiStateId.descipcion,
             porcenjatevotos = moviesUiStateId.porcenjatevotos,
             lenguaje = moviesUiStateId.lenguaje,
-            //genero = moviesUiStateId.genero,
+            //genero = moviesUiStatePopularId.genero,
             fechalanzamiento = moviesUiStateId.fechalanzamiento
         ), modifier = modifier)
         else -> ErrorScreenId(retryAction)
@@ -104,10 +101,10 @@ fun ErrorScreenId(retryAction: () -> Unit) {
 }
 
 @Composable
-fun MoviesDetailsCard(photo: PeliculasDAOID) {
+fun MoviesDetailsCard(photo: PeliculasPopularDAOID) {
 
     Card(modifier = Modifier.height(250.dp).
-        padding(5.dp),
+    padding(5.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -131,7 +128,7 @@ fun MoviesDetailsCard(photo: PeliculasDAOID) {
 
 @Composable
 fun PhotosPagerScreenId(
-    photos: PeliculasDAOID,
+    photos: PeliculasPopularDAOID,
     modifier: Modifier
     //contentPadding: PaddingValues = PaddingValues(16.dp),
 ) {
@@ -140,8 +137,8 @@ fun PhotosPagerScreenId(
         modifier = modifier.verticalScroll(rememberScrollState()),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         colors = CardDefaults.cardColors(
-                                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                            ),
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        ),
         shape = CardDefaults.shape,
     ) {
         Column(
@@ -151,19 +148,23 @@ fun PhotosPagerScreenId(
         ) {
 
             MoviesDetailsCard(photo = photos)
-            Text(
-                text = photos.titulo,
-                modifier = Modifier.padding(5.dp).fillMaxSize().wrapContentSize(),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.titleLarge,
-                fontSize = 30.sp,
-                fontWeight = FontWeight.Bold,
-            )
-            Text(
-                text = photos.descipcion,
-                modifier = Modifier.padding(5.dp),
-                style = MaterialTheme.typography.titleLarge
-            )
+            photos.titulo?.let {
+                Text(
+                    text = it,
+                    modifier = Modifier.padding(5.dp).fillMaxSize().wrapContentSize(),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+            photos.descipcion?.let {
+                Text(
+                    text = it,
+                    modifier = Modifier.padding(5.dp),
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
             Column(modifier = modifier.fillMaxWidth()) {
                 Row(modifier = modifier.fillMaxSize()) {
                     Text(
@@ -171,11 +172,13 @@ fun PhotosPagerScreenId(
                         modifier = Modifier.padding(5.dp),
                         style = MaterialTheme.typography.titleLarge
                     )
-                    Text(
-                        text = photos.lenguaje,
-                        modifier = Modifier.padding(5.dp),
-                        style = MaterialTheme.typography.titleLarge
-                    )
+                    photos.lenguaje?.let {
+                        Text(
+                            text = it,
+                            modifier = Modifier.padding(5.dp),
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    }
                 }
                 Row(modifier = modifier.fillMaxSize()) {
                     Text(
@@ -183,11 +186,13 @@ fun PhotosPagerScreenId(
                         modifier = Modifier.padding(5.dp),
                         style = MaterialTheme.typography.titleLarge
                     )
-                    Text(
-                        text = photos.fechalanzamiento,
-                        modifier = Modifier.padding(5.dp),
-                        style = MaterialTheme.typography.titleLarge
-                    )
+                    photos.fechalanzamiento?.let {
+                        Text(
+                            text = it,
+                            modifier = Modifier.padding(5.dp),
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    }
 
                 }
                 Row(modifier = modifier.fillMaxSize()) {
@@ -203,19 +208,19 @@ fun PhotosPagerScreenId(
                     )
                 }
 
-               /** Row(modifier = modifier.fillMaxSize()) {
-                    Text(
-                        text = "Genero: ",
-                        modifier = Modifier.padding(5.dp),
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                    for (genero in photos.genero) {
-                        Text(
-                            text = genero.name,
-                            modifier = Modifier.padding(5.dp),
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    }
+                /** Row(modifier = modifier.fillMaxSize()) {
+                Text(
+                text = "Genero: ",
+                modifier = Modifier.padding(5.dp),
+                style = MaterialTheme.typography.titleLarge
+                )
+                for (genero in photos.genero) {
+                Text(
+                text = genero.name,
+                modifier = Modifier.padding(5.dp),
+                style = MaterialTheme.typography.titleLarge
+                )
+                }
                 }*/
             }
         }
@@ -231,7 +236,7 @@ fun PhotosPagerScreenId(
 @Composable
 fun PhotosPagerScreenIdPreview() {
     PeliculasPopularesTheme {
-        val mockData = PeliculasDAOID("9", "","", 11F,",",
+        val mockData = PeliculasPopularDAOID("9", "","", 11F,",",
             ",", "")
         PhotosPagerScreenId(photos = mockData, modifier = Modifier)
     }

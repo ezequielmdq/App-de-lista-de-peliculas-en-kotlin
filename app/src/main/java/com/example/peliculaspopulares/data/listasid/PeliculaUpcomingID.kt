@@ -1,35 +1,32 @@
-package com.example.peliculaspopulares.data
+package com.example.peliculaspopulares.data.listasid
 
 
+import com.example.peliculaspopulares.data.Generodetalles
 import com.squareup.moshi.Json
 
-class PeliculaID(
-
+data class PeliculaUpcomingID(
 
     val id : String,
     //@SerializedName("original_title")
     @Json(name = "original_title")
-    val titulo : String,
+    val titulo : String?,
     //@SerializedName("overview")
     @Json(name = "overview")
-    val descipcion : String,
+    val descipcion : String?,
     //@SerializedName("vote_average")
     @Json(name = "vote_average")
-    val porcenjatevotos : Float,
+    val porcenjatevotos : Float?,
     //@SerializedName("original_language")
     @Json(name = "original_language")
-    val lenguaje : String,
+    val lenguaje : String?,
     //@SerializedName("genres")
     @Json(name = "genres")
-    val genero : List<Generodetalles>,
+    val genero : List<Generodetalles>?,
     //@SerializedName("release_date")
     @Json(name = "release_date")
-    val fechalanzamiento : String,
+    val fechalanzamiento : String?,
     //@SerializedName("backdrop_path")
     @Json(name = "backdrop_path")
-    val poster : String
+    val poster : String?
 
-
-
-
-    )
+)

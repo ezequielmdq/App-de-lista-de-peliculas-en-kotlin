@@ -25,8 +25,10 @@ android {
 
         buildConfigField("String", "BASE_URL",  "\"https://api.themoviedb.org/3/\"")
         buildConfigField("String", "PATH_PELICULAS",  "\"movie/\"")
-        //buildConfigField("String", "QUERY_POPULAR",  "\"popular?\"")
-        buildConfigField("String", "QUERY_POPULAR",  "\"top_rated?\"")
+        buildConfigField("String", "QUERY_POPULAR",  "\"popular?\"")
+        buildConfigField("String", "QUERY_NOW",  "\"now_playing?\"")
+        buildConfigField("String", "QUERY_UPCOMING",  "\"upcoming?\"")
+        buildConfigField("String", "QUERY_TOP",  "\"top_rated?\"")
         buildConfigField("String", "QUERY_PELICULAID",  "\"{movieid}?\"")
         buildConfigField("String", "BASE_URL_IMAGEN",  "\"https://image.tmdb.org/t/p/original\"")
         buildConfigField("String", "API_KEY",  "\"api_key=02910252245f8276bb2edbf724510082\"")

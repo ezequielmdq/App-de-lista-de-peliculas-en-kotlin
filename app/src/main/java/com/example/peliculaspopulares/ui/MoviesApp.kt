@@ -2,12 +2,8 @@ package com.example.peliculaspopulares.ui
 
 import android.annotation.SuppressLint
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -18,23 +14,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -44,17 +32,16 @@ import com.example.peliculaspopulares.R
 import com.example.peliculaspopulares.model.PeliculaDaoViewModel
 import com.example.peliculaspopulares.model.PeliculasPopularesViewModel
 import com.example.peliculaspopulares.ui.screens.DetailsScreen
-import com.example.peliculaspopulares.ui.screens.MoviesScreen
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope.coroutineContext
-import kotlinx.coroutines.job
-import kotlinx.coroutines.launch
-import kotlin.coroutines.coroutineContext
-import kotlin.getValue
+import com.example.peliculaspopulares.ui.screens.MoviesCategoriesScreen
+
 
 enum class MoviesScreenApp(@StringRes val title: Int) {
     Start(title = R.string.movies),
     Details(title = R.string.details),
+    Popular(title = R.string.popular),
+    NowPlaying(title = R.string.nowplaying),
+    TopRated(title = R.string.toprated),
+    Upcoming(title = R.string.upcoming)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -96,10 +83,19 @@ fun MoviesApp(modifier: Modifier, navController: NavHostController = rememberNav
 
     val peliculaViewModelDao: PeliculaDaoViewModel = viewModel(factory = PeliculaDaoViewModel.Factory)
 
-    val moviesList by peliculaViewModel.moviiesList.collectAsState()
-    val moviesListId by peliculaViewModel.moviesListId.collectAsState()
+    val moviesListPopular by peliculaViewModel.moviesListPopular.collectAsState()
+    val moviesListNow by peliculaViewModel.moviesListNow.collectAsState()
+    val moviesListTop by peliculaViewModel.moviesListTop.collectAsState()
+    val moviesListUpcoming by peliculaViewModel.moviesListUpcoming.collectAsState()
+    val moviesListPopularId by peliculaViewModel.moviesListPopularId.collectAsState()
+    val moviesListNowId by peliculaViewModel.moviesListNowId.collectAsState()
+    val moviesListTopId by peliculaViewModel.moviesListTopId.collectAsState()
+    val moviesListUpcomingId by peliculaViewModel.moviesListUpcomingId.collectAsState()
 
-    val moviesUiStateDao by peliculaViewModelDao.moviesUiStateDao.collectAsState()
+    val moviesPopularUiStateDao by peliculaViewModelDao.moviesPopularUiStateDao.collectAsState()
+    val moviesNowUiStateDao by peliculaViewModelDao.moviesNowUiStateDao.collectAsState()
+    val moviesTopUiStateDao by peliculaViewModelDao.moviesTopUiStateDao.collectAsState()
+    val moviesUpcomingUiStateDao by peliculaViewModelDao.moviesUpcomingUiStateDao.collectAsState()
 
 
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -110,13 +106,13 @@ fun MoviesApp(modifier: Modifier, navController: NavHostController = rememberNav
 
     Scaffold(
 
-            topBar = {
-                MoviesAppBar(
-                    currentScreen = currentScreen,
-                    canNavigateBack = navController.previousBackStackEntry != null,
-                    navigateUp = { navController.navigateUp() },
-                )
-            },
+        topBar = {
+            MoviesAppBar(
+                currentScreen = currentScreen,
+                canNavigateBack = navController.previousBackStackEntry != null,
+                navigateUp = { navController.navigateUp() },
+            )
+        },
 
         ) { innerPadding ->
 
@@ -135,22 +131,38 @@ fun MoviesApp(modifier: Modifier, navController: NavHostController = rememberNav
             ) {
 
                 composable(route = MoviesScreenApp.Start.name) {
-                        MoviesScreen(
-                            moviesList = moviesList,
-                            moviesListId = moviesListId,
-                            moviesUiState = peliculaViewModelDao.moviesUiState,
-                            moviesUiStateDao = moviesUiStateDao,
-                            retryAction = {  },
-                            onMovieClick = { //peliculaViewModel.getMoviesId(it)
-                                peliculaViewModelDao.getMoviesId(it)
-                                navController.navigate(MoviesScreenApp.Details.name) },
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
+                    MoviesCategoriesScreen(
+                        moviesListPopular = moviesListPopular,
+                        moviesListNow = moviesListNow,
+                        moviesListTop = moviesListTop,
+                        moviesListUpcoming = moviesListUpcoming,
+                        moviesListPopularId = moviesListPopularId,
+                        moviesListNowId = moviesListNowId,
+                        moviesListTopId = moviesListTopId,
+                        moviesListUpcomingId = moviesListUpcomingId,
+                        moviesPopularUiState = peliculaViewModelDao.moviesPopularUiState,
+                        moviesNowUiState = peliculaViewModelDao.moviesNowUiState,
+                        moviesTopUiState = peliculaViewModelDao.moviesTopUiState,
+                        moviesUpcomingUiState = peliculaViewModelDao.moviesUpcomingUiState,
+                        moviesPopularUiStateDao = moviesPopularUiStateDao,
+                        moviesNowUiStateDao = moviesNowUiStateDao,
+                        moviesTopUiStateDao = moviesTopUiStateDao,
+                        moviesUpcomingUiStateDao = moviesUpcomingUiStateDao,
+                        retryAction = {  },
+                        /** onMovieClick = { //peliculaViewModel.getMoviesId(it)
+                        peliculaViewModelDao.getMoviesId(it)
+                        navController.navigate(MoviesScreenApp.Details.name) },*/
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+
+                composable(route = MoviesScreenApp.Popular.name)  {
+
+                }
 
                 composable(route = MoviesScreenApp.Details.name) {
                     DetailsScreen(
-                        moviesUiStateId = peliculaViewModelDao.moviesUiStateId,
+                        moviesUiStateId = peliculaViewModelDao.moviesPopularUiStateId,
                         retryAction = {  },
                         modifier = Modifier.fillMaxSize()
                     )

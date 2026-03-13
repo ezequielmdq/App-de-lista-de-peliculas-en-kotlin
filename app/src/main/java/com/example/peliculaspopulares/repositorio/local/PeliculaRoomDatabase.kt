@@ -7,15 +7,30 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.peliculaspopulares.data.GeneroDAO
-import com.example.peliculaspopulares.data.PeliculasDAO
-import com.example.peliculaspopulares.data.PeliculasDAOID
+import com.example.peliculaspopulares.data.listasdao.PeliculasNowDAO
+import com.example.peliculaspopulares.data.listasdao.PeliculasTopDAO
+import com.example.peliculaspopulares.data.listasdao.PeliculasPopularDAO
+import com.example.peliculaspopulares.data.listasdao.PeliculasUpcomingDAO
+import com.example.peliculaspopulares.data.listasdaoid.PeliculasNowDAOID
+import com.example.peliculaspopulares.data.listasdaoid.PeliculasTopDAOID
+import com.example.peliculaspopulares.data.listasdaoid.PeliculasPopularDAOID
+import com.example.peliculaspopulares.data.listasdaoid.PeliculasUpcomingDAOID
 import com.example.peliculaspopulares.service.PeliculaDao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 
+
 // Annotates class to be a Room Database with a table (entity) of the PeliculaDAO class
-@Database(entities = [PeliculasDAO::class, PeliculasDAOID::class, GeneroDAO::class], version = 3, exportSchema = false)
+@Database(entities = [PeliculasPopularDAO::class,
+                      PeliculasPopularDAOID::class,
+                      PeliculasNowDAO::class,
+                      PeliculasNowDAOID::class,
+                      PeliculasTopDAO::class,
+                      PeliculasTopDAOID::class,
+                      PeliculasUpcomingDAO::class,
+                      PeliculasUpcomingDAOID::class,
+                      GeneroDAO::class], version = 12, exportSchema = false)
 public abstract class PeliculaRoomDatabase : RoomDatabase(){
 
     abstract fun peliculaDao(): PeliculaDao
@@ -32,9 +47,22 @@ public abstract class PeliculaRoomDatabase : RoomDatabase(){
                     val peliculaDao = database.peliculaDao()
 
                     // Delete all content here.
-                    peliculaDao.deleteAll()
+                    peliculaDao.deleteAllPopular()
 
-                    peliculaDao.deleteAllId()
+                    peliculaDao.deleteAllNow()
+
+                    peliculaDao.deleteAllTop()
+
+                    peliculaDao.deleteAllUpcoming()
+
+                    peliculaDao.deleteAllPopularId()
+
+                    peliculaDao.deleteAllNowId()
+
+                    peliculaDao.deleteAllTopId()
+
+                    peliculaDao.deleteAllUpcomingId()
+
 
                 }
             }
@@ -57,7 +85,7 @@ public abstract class PeliculaRoomDatabase : RoomDatabase(){
                     "pelicula_database"
                 )
                     .addCallback(PeliculaDatabaseCallback(scope))
-                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration(false)
                     .build()
                 INSTANCE = instance
                 // return instance
@@ -67,3 +95,33 @@ public abstract class PeliculaRoomDatabase : RoomDatabase(){
     }
 
 }
+
+/**
+@Database(entities = [PeliculasPopularDAO::class, PeliculasPopularDAOID::class, GeneroDAO::class], version = 1, exportSchema = false)
+abstract class PeliculaRoomDatabase : RoomDatabase() {
+
+abstract fun peliculaDao(): PeliculaDao
+
+companion object {
+
+@Volatile
+private var Instance: PeliculaRoomDatabase? = null
+
+fun getDatabase(context: Context): PeliculaRoomDatabase {
+
+return Instance ?: synchronized(this) {
+
+Room.databaseBuilder(context, PeliculaRoomDatabase::class.java, "movies_database")
+.fallbackToDestructiveMigration()
+.build()
+.also { Instance = it }
+
+}
+
+}
+}
+
+
+}
+
+ */

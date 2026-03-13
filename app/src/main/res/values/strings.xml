@@ -27,5 +27,9 @@
     <string name="movies_photo">Movies photo</string>
     <string name="movies">Movies</string>
     <string name="details">Details</string>
+    <string name="popular">Popular</string>
+    <string name="toprated">TopRated</string>
+    <string name="upcoming">Upcoming</string>
+    <string name="nowplaying">NowPlaying</string>
     <string name="back_button">Back</string>
 </resources>
