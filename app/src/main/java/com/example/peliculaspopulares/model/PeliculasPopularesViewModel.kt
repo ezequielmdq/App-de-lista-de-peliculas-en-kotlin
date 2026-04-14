@@ -55,14 +55,16 @@ data class MoviesListUpcoming(
 )
 
 sealed interface MoviesUiStatePopularId {
-    data class Success(val id: String,
-                       val titulo: String,
-                       val descipcion: String,
-                       val fechalanzamiento: String,
-                       val porcenjatevotos: Float,
-                       val lenguaje: String,
-                       val genero: List<Generodetalles>,
-                       val poster: String) : MoviesUiStatePopularId
+    data class Success(
+        val id: String,
+        val titulo: String?,
+        val descipcion: String?,
+        val fechalanzamiento: String?,
+        val porcenjatevotos: Float?,
+        val lenguaje: String?,
+        val genero: List<Generodetalles>?,
+        val poster: String?
+    ) : MoviesUiStatePopularId
     object Error : MoviesUiStatePopularId
     object Loading : MoviesUiStatePopularId
 }
@@ -426,25 +428,25 @@ class PeliculasPopularesViewModel /**@Inject constructor*/(private val repositor
     }
     }
     }*/
-    /**
+
     fun getMoviesId(idpelicula: String) {
-    viewModelScope.launch {
-    moviesUiStatePopularId = try {
-    MoviesUiStatePopularId.Success(
-    descipcion = repository3.getPeliculasPopularID(idpelicula).body()!!.descipcion,
-    fechalanzamiento = repository3.getPeliculasPopularID(idpelicula).body()!!.fechalanzamiento,
-    porcenjatevotos = repository3.getPeliculasPopularID(idpelicula).body()!!.porcenjatevotos,
-    lenguaje = repository3.getPeliculasPopularID(idpelicula).body()!!.lenguaje,
-    genero = repository3.getPeliculasPopularID(idpelicula).body()!!.genero,
-    poster = repository3.getPeliculasPopularID(idpelicula).body()!!.poster,
-    id = repository3.getPeliculasPopularID(idpelicula).body()!!.id,
-    titulo = repository3.getPeliculasPopularID(idpelicula).body()!!.titulo
-    )
-    } catch (e: IOException) {
-    MoviesUiStatePopularId.Error
+        viewModelScope.launch {
+            moviesUiStatePopularId = try {
+                MoviesUiStatePopularId.Success(
+                    descipcion = repository3.getPeliculasPopularID(idpelicula).body()!!.descipcion,
+                    fechalanzamiento = repository3.getPeliculasPopularID(idpelicula).body()!!.fechalanzamiento,
+                    porcenjatevotos = repository3.getPeliculasPopularID(idpelicula).body()!!.porcenjatevotos,
+                    lenguaje = repository3.getPeliculasPopularID(idpelicula).body()!!.lenguaje,
+                    genero = repository3.getPeliculasPopularID(idpelicula).body()!!.genero,
+                    poster = repository3.getPeliculasPopularID(idpelicula).body()!!.poster,
+                    id = repository3.getPeliculasPopularID(idpelicula).body()!!.id,
+                    titulo = repository3.getPeliculasPopularID(idpelicula).body()!!.titulo
+                )
+                        } catch (e: IOException) {
+                            MoviesUiStatePopularId.Error
+                    }
+                }
     }
-    }
-    }*/
 
     companion object {
 

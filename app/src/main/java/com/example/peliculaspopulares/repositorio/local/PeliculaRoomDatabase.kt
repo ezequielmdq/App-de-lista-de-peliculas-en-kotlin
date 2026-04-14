@@ -85,7 +85,7 @@ public abstract class PeliculaRoomDatabase : RoomDatabase(){
                     "pelicula_database"
                 )
                     .addCallback(PeliculaDatabaseCallback(scope))
-                    .fallbackToDestructiveMigration(false)
+                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 // return instance

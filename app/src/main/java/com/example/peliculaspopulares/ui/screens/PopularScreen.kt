@@ -44,14 +44,14 @@ import com.example.peliculaspopulares.ui.theme.PeliculasPopularesTheme
 fun PopularScreen(moviesPopularUiState: MoviesPopularUiStateDao,
                   retryAction: () -> Unit,
                   modifier: Modifier,
-                  /**onMovieClick: (String) -> Unit*/) {
+                  onMovieClick: (String) -> Unit) {
 
     when (moviesPopularUiState) {
         is MoviesPopularUiStateDao.Loading -> PopularLoadingScreen()
         is MoviesPopularUiStateDao.Success -> {
             PhotosPopularGridScreen(
                 photos = moviesPopularUiState.photos,
-                /**onMovieClick = {onMovieClick(it)},*/
+                onMovieClick = {onMovieClick(it)},
                 modifier = modifier
             )
         }
@@ -101,11 +101,11 @@ fun PopularErrorScreen(retryAction: () -> Unit) {
 
 @Composable
 fun PopularPhotoCard(photo: PeliculasPopularDAO,
-                    //onMovieClick: (String) -> Unit
+                     onMovieClick: (String) -> Unit
 ) {
 
         Column(modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = photo.titulo ?: "",
@@ -123,7 +123,7 @@ fun PopularPhotoCard(photo: PeliculasPopularDAO,
                 modifier = Modifier
                     .height(500.dp)
                     .fillMaxSize(),
-                //onClick = { onMovieClick(photo.id) },
+                onClick = { onMovieClick(photo.id) },
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
                 shape = CardDefaults.shape
             ) {
@@ -150,8 +150,8 @@ fun PopularPhotoCard(photo: PeliculasPopularDAO,
 fun PhotosPopularGridScreen(
     modifier: Modifier,
     photos: List<PeliculasPopularDAO>,
-    //onMovieClick: (String) -> Unit,
     contentPadding: PaddingValues = PaddingValues(16.dp),
+    onMovieClick: (String) -> Unit,
 ) {
 
     val state = rememberPagerState { photos.size }
@@ -165,9 +165,7 @@ fun PhotosPopularGridScreen(
         ) { page ->
 
         PopularPhotoCard(photos[page],
-            //onMovieClick = onMovieClick
-
-
+            onMovieClick = onMovieClick
         )
 
     }
@@ -181,7 +179,7 @@ fun PhotosGridScreenPreview() {
         val mockData = List(10) { PeliculasPopularDAO("$it", "", "", "") }
         PhotosPopularGridScreen(
             photos = mockData,
-            //onMovieClick = { },
+            onMovieClick = { },
             modifier = Modifier
         )
     }

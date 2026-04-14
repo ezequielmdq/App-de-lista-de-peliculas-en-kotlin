@@ -93,7 +93,7 @@ fun UpcomingPhotoCard(photo: PeliculasUpcomingDAO,
 ) {
 
     Column(modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = photo.titulo ?: "",
@@ -171,18 +171,18 @@ fun UpcomingResultScreen(photos: String) {
     }
 }
 
-/**@Preview(showBackground = true)
+@Preview(showBackground = true)
 @Composable
-fun NewPhotosGridScreenPreview() {
+fun UpcomingPhotosGridScreenPreview() {
 PeliculasPopularesTheme {
-val mockData = List(10) { PeliculasPopularDAO("$it", "", "", "") }
-PhotosNewGridScreen(
+val mockData = List(10) { PeliculasUpcomingDAO("$it", "", "", "") }
+PhotosUpcomingGridScreen(
 photos = mockData,
 //onMovieClick = { },
 modifier = Modifier
 )
 }
-}*/
+}
 
 
 
@@ -190,6 +190,6 @@ modifier = Modifier
 @Composable
 fun UpcomingResultScreenPreview() {
     PeliculasPopularesTheme {
-        NowResultScreen(stringResource(R.string.placeholder_result))
+        UpcomingResultScreen(stringResource(R.string.placeholder_result))
     }
 }

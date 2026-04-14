@@ -1,21 +1,41 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# Room rules
+-keep class * extends androidx.room.RoomDatabase
+-keep class * extends androidx.room.Entity
+-keep class * extends androidx.room.Dao
+-keep class * implements androidx.room.RoomDatabase$Callback
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# Moshi rules
+-keep class com.squareup.moshi.** { *; }
+-keep interface com.squareup.moshi.** { *; }
+-keep @com.squareup.moshi.Json class *
+-keepclassmembers class * {
+    @com.squareup.moshi.Json *;
+}
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Retrofit rules
+-keepattributes Signature, InnerClasses, EnclosingMethod
+-keep @retrofit2.http.** interface * { *; }
+-keepclassmembers class * {
+    @retrofit2.http.** <methods>;
+}
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# Kotlin Serialization (if used)
+-keepattributes *Annotation*, EnclosingMethod, Signature
+-keepclassmembers class ** {
+    @kotlinx.serialization.SerialName <fields>;
+}
+
+# Hilt rules
+-keep class dagger.hilt.android.internal.managers.** { *; }
+-keep class * extends dagger.hilt.android.internal.managers.ViewComponentManager$ComponentManager
+-keep class * implements dagger.hilt.internal.GeneratedComponent
+-keep class * implements dagger.hilt.internal.UnsafeCasts
+-keep class * implements dagger.hilt.android.internal.lifecycle.DefaultViewModelFactories$InternalFactoryFactory
+-keep class * implements dagger.hilt.android.internal.managers.ComponentSupplier
+
+# General Coroutines
+-keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
+-keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
+-keepclassmembernames class kotlinx.coroutines.android.HandlerContext {
+    java.lang.String name;
+}

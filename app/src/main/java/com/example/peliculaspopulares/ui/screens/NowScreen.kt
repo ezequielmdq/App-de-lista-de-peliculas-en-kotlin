@@ -93,7 +93,7 @@ fun NowPhotoCard(photo: PeliculasNowDAO,
 ) {
 
     Column(modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = photo.titulo ?: "",
@@ -171,18 +171,18 @@ fun NowResultScreen(photos: String) {
     }
 }
 
-/**@Preview(showBackground = true)
+@Preview(showBackground = true)
 @Composable
-fun NewPhotosGridScreenPreview() {
+fun NowPhotosGridScreenPreview() {
 PeliculasPopularesTheme {
-        val mockData = List(10) { PeliculasPopularDAO("$it", "", "", "") }
-        PhotosNewGridScreen(
+        val mockData = List(10) { PeliculasNowDAO("$it", "", "", "") }
+        PhotosNowGridScreen(
             photos = mockData,
             //onMovieClick = { },
             modifier = Modifier
         )
     }
-}*/
+}
 
 
 

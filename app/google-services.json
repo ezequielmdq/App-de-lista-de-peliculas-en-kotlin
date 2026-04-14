@@ -12,7 +12,20 @@
           "package_name": "com.example.peliculaspopulares"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1005486429526-0jfitq4m1msk7qumq1ah9q8g8ocp9snc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.peliculaspopulares",
+            "certificate_hash": "46ccaf8d670539d9de28695a2caf8f809f4f21aa"
+          }
+        },
+        {
+          "client_id": "1005486429526-nugh4iv607rl9tfav1um7mgh6f06ojim.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBeAwW_IJ3h1w5XiI_98ieRsw7r-pWlR0g"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1005486429526-nugh4iv607rl9tfav1um7mgh6f06ojim.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

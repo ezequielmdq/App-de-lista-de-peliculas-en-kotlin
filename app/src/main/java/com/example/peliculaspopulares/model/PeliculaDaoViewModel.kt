@@ -23,6 +23,7 @@ import com.example.peliculaspopulares.repositorio.local.PeliculaRepositoryDao
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.IOException
 
@@ -60,14 +61,16 @@ data class MoviesTopDao(val photos: List<PeliculasTopDAO> = emptyList())
 data class MoviesUpcomingDao(val photos: List<PeliculasUpcomingDAO> = emptyList())
 
 sealed interface MoviesPopularUiStateIdDao {
-    data class Success(val id: String,
-                       val titulo: String,
-                       val descipcion: String,
-                       val fechalanzamiento: String,
-                       val porcenjatevotos: Float,
-                       val lenguaje: String,
+    data class Success(
+        val id: String,
+        val titulo: String?,
+        val descipcion: String?,
+        val fechalanzamiento: String?,
+        val porcenjatevotos: Float?,
+        val lenguaje: String?,
         //val genero: List<Generodetalles>,
-                       val poster: String) : MoviesPopularUiStateIdDao
+        val poster: String?
+    ) : MoviesPopularUiStateIdDao
     object Error : MoviesPopularUiStateIdDao
     object Loading : MoviesPopularUiStateIdDao
 }
@@ -112,44 +115,44 @@ sealed interface MoviesUpcomingUiStateIdDao {
 }
 
 data class MoviesPopularUiStateIdDaoDetalle(
-    var id: String = "",
-    var titulo: String = "",
-    var descipcion: String = "",
-    var fechalanzamiento: String = "",
-    var porcenjatevotos: Float = 0f,
-    var lenguaje: String = "",
+    val id: String = "",
+    val titulo: String = "",
+    val descipcion: String = "",
+    val fechalanzamiento: String = "",
+    val porcenjatevotos: Float = 0f,
+    val lenguaje: String = "",
     //val genero: List<Generodetalles> = emptyList(),
-    var poster: String = "")
+    val poster: String = "")
 
 data class MoviesNowUiStateIdDaoDetalle(
-    var id: String = "",
-    var titulo: String = "",
-    var descipcion: String = "",
-    var fechalanzamiento: String = "",
-    var porcenjatevotos: Float = 0f,
-    var lenguaje: String = "",
+    val id: String = "",
+    val titulo: String = "",
+    val descipcion: String = "",
+    val fechalanzamiento: String = "",
+    val porcenjatevotos: Float = 0f,
+    val lenguaje: String = "",
     //val genero: List<Generodetalles> = emptyList(),
-    var poster: String = "")
+    val poster: String = "")
 
 data class MoviesTopUiStateIdDaoDetalle(
-    var id: String = "",
-    var titulo: String = "",
-    var descipcion: String = "",
-    var fechalanzamiento: String = "",
-    var porcenjatevotos: Float = 0f,
-    var lenguaje: String = "",
+    val id: String = "",
+    val titulo: String = "",
+    val descipcion: String = "",
+    val fechalanzamiento: String = "",
+    val porcenjatevotos: Float = 0f,
+    val lenguaje: String = "",
     //val genero: List<Generodetalles> = emptyList(),
-    var poster: String = "")
+    val poster: String = "")
 
 data class MoviesUpcomingUiStateIdDaoDetalle(
-    var id: String = "",
-    var titulo: String = "",
-    var descipcion: String = "",
-    var fechalanzamiento: String = "",
-    var porcenjatevotos: Float = 0f,
-    var lenguaje: String = "",
+    val id: String = "",
+    val titulo: String = "",
+    val descipcion: String = "",
+    val fechalanzamiento: String = "",
+    val porcenjatevotos: Float = 0f,
+    val lenguaje: String = "",
     //val genero: List<Generodetalles> = emptyList(),
-    var poster: String = "")
+    val poster: String = "")
 
 class PeliculaDaoViewModel (private val repository: PeliculaRepositoryDao) : ViewModel() {
 
@@ -434,31 +437,34 @@ class PeliculaDaoViewModel (private val repository: PeliculaRepositoryDao) : Vie
 
 
 
-    /**
+
     fun getMoviesId(data : String)  = viewModelScope.launch {
-    try {
-    repository.getMoviesPopularStreamId(data).collect { data ->
+        try {
+            repository.getMoviesPopularStreamId(data).collect { data ->
 
-    moviesPopularUiStateId = MoviesPopularUiStateIdDao.Success(
-    descipcion = data.descipcion,
-    fechalanzamiento = data.fechalanzamiento,
-    porcenjatevotos = data.porcenjatevotos,
-    lenguaje = data.lenguaje,
-    poster = data.poster,
-    id = data.id,
-    titulo = data.titulo
-    )
-
-
-    /** _moviesPopularUiStateIdDaoDetalle.value.descipcion = data.descipcion
-    _moviesPopularUiStateIdDaoDetalle.value.fechalanzamiento = data.fechalanzamiento
-    _moviesPopularUiStateIdDaoDetalle.value.lenguaje = data.lenguaje
-    _moviesPopularUiStateIdDaoDetalle.value.porcenjatevotos = data.porcenjatevotos
-    _moviesPopularUiStateIdDaoDetalle.value.poster = data.poster
-    _moviesPopularUiStateIdDaoDetalle.value.id = data.id
-    _moviesPopularUiStateIdDaoDetalle.value.titulo = data.titulo*/
-
-    }}catch (e:Exception){}
+                moviesPopularUiStateId = MoviesPopularUiStateIdDao.Success(
+                    descipcion = data.descipcion,
+                    fechalanzamiento = data.fechalanzamiento,
+                    porcenjatevotos = data.porcenjatevotos,
+                    lenguaje = data.lenguaje,
+                    poster = data.poster,
+                    id = data.id,
+                    titulo = data.titulo
+                )
+                _moviesPopularUiStateIdDaoDetalle.update { currentState ->
+                    currentState.copy(
+                        descipcion = data.descipcion ?: "",
+                        fechalanzamiento = data.fechalanzamiento ?: "",
+                        lenguaje = data.lenguaje ?: "",
+                        porcenjatevotos = data.porcenjatevotos ?: 0f,
+                        poster = data.poster ?: "",
+                        id = data.id,
+                        titulo = data.titulo ?: ""
+                    )
+                }
+            }
+        } catch (e: Exception) {
+        }
     }
 
 
@@ -466,8 +472,6 @@ class PeliculaDaoViewModel (private val repository: PeliculaRepositoryDao) : Vie
 
 
 
-
-     */
 
     /** class PeliculaDaoViewModelFactory(private val repository: PeliculaRepositoryDao) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

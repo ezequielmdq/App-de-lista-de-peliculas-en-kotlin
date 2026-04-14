@@ -32,4 +32,7 @@
     <string name="upcoming">Upcoming</string>
     <string name="nowplaying">NowPlaying</string>
     <string name="back_button">Back</string>
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="web_client">1005486429526-nugh4iv607rl9tfav1um7mgh6f06ojim.apps.googleusercontent.com</string>
 </resources>

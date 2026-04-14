@@ -1,8 +1,12 @@
 package com.example.peliculaspopulares.ui.screens
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -10,11 +14,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -22,6 +30,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.credentials.ClearCredentialStateRequest
+import androidx.credentials.CredentialManager
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.peliculaspopulares.R
 import com.example.peliculaspopulares.data.listasdao.PeliculasNowDAO
@@ -40,17 +51,19 @@ import com.example.peliculaspopulares.model.MoviesListTop
 import com.example.peliculaspopulares.model.MoviesListTopId
 import com.example.peliculaspopulares.model.MoviesListUpcoming
 import com.example.peliculaspopulares.model.MoviesListUpcomingId
-import com.example.peliculaspopulares.model.MoviesNowDao
 import com.example.peliculaspopulares.model.MoviesNowUiStateDao
-import com.example.peliculaspopulares.model.MoviesPopularDao
 import com.example.peliculaspopulares.model.MoviesPopularUiStateDao
-import com.example.peliculaspopulares.model.MoviesTopDao
 import com.example.peliculaspopulares.model.MoviesTopUiStateDao
-import com.example.peliculaspopulares.model.MoviesUpcomingDao
 import com.example.peliculaspopulares.model.MoviesUpcomingUiStateDao
 import com.example.peliculaspopulares.model.PeliculaDaoViewModel
-import com.example.peliculaspopulares.model.PeliculasPopularesViewModel
+import com.example.peliculaspopulares.model.UserPreferencesViewModel
+import com.example.peliculaspopulares.repositorio.UserPreferences
+import com.example.peliculaspopulares.repositorio.UserPreferencesRepository
 import com.example.peliculaspopulares.ui.theme.PeliculasPopularesTheme
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlin.coroutines.suspendCoroutine
 
 
 @Composable
@@ -67,17 +80,12 @@ fun MoviesCategoriesScreen(
     moviesNowUiState: MoviesNowUiStateDao,
     moviesTopUiState: MoviesTopUiStateDao,
     moviesUpcomingUiState: MoviesUpcomingUiStateDao,
-    moviesPopularUiStateDao: MoviesPopularDao,
-    moviesNowUiStateDao: MoviesNowDao,
-    moviesTopUiStateDao: MoviesTopDao,
-    moviesUpcomingUiStateDao: MoviesUpcomingDao,
-    //onMovieClick: (String) -> Unit,
-    retryAction: () -> Unit,
-    modifier: Modifier,
-    contentPadding: PaddingValues = PaddingValues(0.dp),
-    peliculaViewModel: PeliculasPopularesViewModel = viewModel(factory = PeliculasPopularesViewModel.Factory),
-    peliculaViewModelDao: PeliculaDaoViewModel = viewModel(factory = PeliculaDaoViewModel.Factory)) {
+    peliculaViewModelDao: PeliculaDaoViewModel = viewModel(factory = PeliculaDaoViewModel.Factory),
+    dataStore : UserPreferencesViewModel,
+    onMovieClick: (String) -> Unit
+) {
 
+    BackHandler(enabled = false) { }
 
 // Otros LaunchedEffect para las otras operaciones
     LaunchedEffect(moviesListPopular.movies) {
@@ -205,9 +213,8 @@ fun MoviesCategoriesScreen(
         moviesNowUiState = moviesNowUiState,
         moviesTopUiState = moviesTopUiState,
         moviesUpcomingUiState = moviesUpcomingUiState,
-        retryAction = retryAction,
-        modifier = modifier,
-        contentPadding = contentPadding
+        dataStore = dataStore,
+        onMovieClick = { onMovieClick(it) }
     )
 
 
@@ -218,13 +225,33 @@ fun CategoriesPhotoCard(moviesPopularUiState: MoviesPopularUiStateDao,
                         moviesNowUiState: MoviesNowUiStateDao,
                         moviesTopUiState: MoviesTopUiStateDao,
                         moviesUpcomingUiState: MoviesUpcomingUiStateDao,
-                        modifier: Modifier, retryAction: () -> Unit, /**, onMovieClick: (String) -> Unit*/){
+                        dataStore: UserPreferencesViewModel,
+                        onMovieClick: (String) -> Unit){
+
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
 
     Column(modifier = Modifier
         .fillMaxSize()
         .wrapContentSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center) {
+        Button(
+            onClick = {
+                scope.launch {
+                    logOut(context, dataStore)
+                }
+            },
+            modifier = Modifier
+                .padding(16.dp)
+                .align(alignment = Alignment.End),
+            shape = MaterialTheme.shapes.small,
+        ) {
+            Text(text = "Logout")
+
+        }
+        Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "pupular",
             style = TextStyle(
@@ -232,33 +259,35 @@ fun CategoriesPhotoCard(moviesPopularUiState: MoviesPopularUiStateDao,
                 fontStyle = FontStyle.Italic
             ),
             modifier = Modifier
-                .padding(8.dp).wrapContentSize(),
+                .padding(8.dp)
+                .wrapContentSize(),
             textAlign = TextAlign.Center
         )
 
         Spacer(modifier = Modifier.height(8.dp))
         PopularScreen(
             moviesPopularUiState = moviesPopularUiState,
-            retryAction = retryAction,
-            modifier = modifier,
-            /**onMovieClick = onMovieClick*/
+            modifier = Modifier.fillMaxSize(),
+            onMovieClick = { onMovieClick(it) },
+            retryAction = {}
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "now",
+            text = "new",
             style = TextStyle(
                 fontSize = 50.sp,
                 fontStyle = FontStyle.Italic
             ),
             modifier = Modifier
-                .padding(8.dp).wrapContentSize(),
+                .padding(8.dp)
+                .wrapContentSize(),
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(8.dp))
         NowScreen(
             moviesNowUiState = moviesNowUiState,
-            retryAction = retryAction,
-            modifier = modifier,
+            modifier = Modifier.fillMaxSize(),
+            retryAction = {}
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
@@ -268,14 +297,15 @@ fun CategoriesPhotoCard(moviesPopularUiState: MoviesPopularUiStateDao,
                 fontStyle = FontStyle.Italic
             ),
             modifier = Modifier
-                .padding(8.dp).wrapContentSize(),
+                .padding(8.dp)
+                .wrapContentSize(),
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(8.dp))
         TopScreen(
             moviesTopUiState = moviesTopUiState,
-            retryAction = retryAction,
-            modifier = modifier,
+            modifier = Modifier.fillMaxSize(),
+            retryAction = {}
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
@@ -285,18 +315,21 @@ fun CategoriesPhotoCard(moviesPopularUiState: MoviesPopularUiStateDao,
                 fontStyle = FontStyle.Italic
             ),
             modifier = Modifier
-                .padding(8.dp).wrapContentSize(),
+                .padding(8.dp)
+                .wrapContentSize(),
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(8.dp))
         UpcomingScreen(
             moviesUpcomingUiState = moviesUpcomingUiState,
-            retryAction = retryAction,
-            modifier = modifier,
+            modifier = Modifier.fillMaxSize(),
+            retryAction = {}
         )
 
     }
-    }
+}
+
+
 
 
 
@@ -305,27 +338,44 @@ fun PhotosCategoriesGridScreen(moviesPopularUiState: MoviesPopularUiStateDao,
                                moviesNowUiState: MoviesNowUiStateDao,
                                moviesTopUiState: MoviesTopUiStateDao,
                                moviesUpcomingUiState: MoviesUpcomingUiStateDao,
-                               retryAction: () -> Unit,
-                               modifier: Modifier = Modifier,
-                               contentPadding: PaddingValues = PaddingValues(16.dp),
-                               /**onMovieClick: (String) -> Unit*/) {
+                               onMovieClick: (String) -> Unit,
+                               dataStore: UserPreferencesViewModel) {
 
-    Column(modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()),
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        ) {
+    ) {
         CategoriesPhotoCard(
             moviesPopularUiState = moviesPopularUiState,
             moviesNowUiState = moviesNowUiState,
             moviesTopUiState = moviesTopUiState,
             moviesUpcomingUiState = moviesUpcomingUiState,
-            modifier = modifier,
-            retryAction = retryAction,
-            /**onMovieClick = onMovieClick*/
-            )
+            dataStore = dataStore,
+            onMovieClick = { onMovieClick(it) }
+        )
     }
 }
 
+suspend fun logOut(context: Context, dataStore: UserPreferencesViewModel) {
+
+    val credentialManager = CredentialManager.create(context)
+    val request = ClearCredentialStateRequest()
+
+    try {
+        credentialManager.clearCredentialState(request)
+        dataStore.logout()
+        FirebaseAuth.getInstance().signOut()
+        Log.d("Logout", "Credential Manager state cleared successfully")
+    } catch (e: Exception) {
+        Log.e("Logout", "Error clearing credential state", e)
+    }
+    Toast.makeText(context, "Sesión cerrada", Toast.LENGTH_SHORT).show()
+}
+
+@SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
 fun CategoriesPhotosGridScreenPreview() {
@@ -334,14 +384,14 @@ fun CategoriesPhotosGridScreenPreview() {
         val mockData1 = List(10) { PeliculasNowDAO("$it", "", "", "") }
         val mockData2 = List(10) { PeliculasTopDAO("$it", "", "", "") }
         val mockData3 = List(10) { PeliculasUpcomingDAO("$it", "", "", "") }
+        val userPreferencesRepository = UserPreferencesRepository(UserPreferences(LocalContext.current))
         PhotosCategoriesGridScreen(
-            //onMovieClick = { },
+            onMovieClick = { },
             moviesPopularUiState = MoviesPopularUiStateDao.Success(mockData),
-            retryAction = { },
-            modifier = Modifier,
             moviesNowUiState = MoviesNowUiStateDao.Success(mockData1),
             moviesTopUiState = MoviesTopUiStateDao.Success(mockData2),
-            moviesUpcomingUiState = MoviesUpcomingUiStateDao.Success(mockData3)
+            moviesUpcomingUiState = MoviesUpcomingUiStateDao.Success(mockData3),
+            dataStore = UserPreferencesViewModel(userPreferencesRepository)
         )
     }
 }

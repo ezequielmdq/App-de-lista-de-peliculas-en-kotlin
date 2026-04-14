@@ -2,6 +2,8 @@ package com.example.peliculaspopulares.repositorio.network
 
 import android.content.Context
 import com.example.peliculaspopulares.BuildConfig
+import com.example.peliculaspopulares.repositorio.UserPreferences
+import com.example.peliculaspopulares.repositorio.UserPreferencesRepository
 import com.example.peliculaspopulares.repositorio.local.PeliculaRepositoryDao
 import com.example.peliculaspopulares.repositorio.local.PeliculaRoomDatabase.Companion.getDatabase
 import com.example.peliculaspopulares.service.MoshiPeliculaInterface
@@ -16,6 +18,8 @@ interface AppContainer {
     val peliculaRepository : PeliculaRepository
 
     val peliculaRepositoryDao : PeliculaRepositoryDao
+
+    val userPreferencesRepository : UserPreferencesRepository
 
 
 }
@@ -45,5 +49,5 @@ class DefaultAppContainer(context: Context) : AppContainer {
         ).peliculaDao())
     }
 
-
+    override val userPreferencesRepository = UserPreferencesRepository(UserPreferences(context))
 }
